@@ -33,6 +33,7 @@ DallasTemperature sensorSuhu(&oneWire);
 float suhuSekarang;
 RTC_DS3231 rtc;
 Servo myservo;  // create servo object to control a servo
+Servo myservo1;  // create servo object to control a servo
 
 char daysOfTheWeek[7][12] = {"Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"};
 int pos = 0;
@@ -91,6 +92,7 @@ void loop () {
     Serial.println(suhuSekarang); 
     delay(3000);
 
+
    if((now.hour() == 10 && now.minute() == 27 )){
     delay(3000);
     myservo.attach(9);
@@ -105,6 +107,18 @@ void loop () {
         myservo.detach();
     } 
 
+    if((suhuSekarang > 30)){
+    myservo1.attach(10);
+    myservo1.write(pos);
+    delay(2000);
+      for (pos = 0; pos <= 180;) { // servo berputar 180 derajat membuka katup pakan
+        // in steps of 1 degree
+        delay(3000);                       // delay selama 1detik
+        myservo1.write(pos);   // servo menutup kembali katup pakan
+        
+        } 
+        myservo1.detach();
+    } 
 
 }
 
