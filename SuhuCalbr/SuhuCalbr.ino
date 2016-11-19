@@ -24,7 +24,7 @@ void loop(void)
   suhuSekarang = ambilSuhu();
   Serial.print("Suhu : ");   
   Serial.println(suhuSekarang);     
-  delay(2000);
+  delay(20000);
 }
  
 float ambilSuhu()
