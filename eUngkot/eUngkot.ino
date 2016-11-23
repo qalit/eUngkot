@@ -2,7 +2,7 @@
 
 Time RTC set servo to move feed door 
 
- The circuit:
+ circuit:
  *base on fritzing sketch
  *available : qalit.io/eungkot
  
@@ -32,17 +32,19 @@ DallasTemperature sensorSuhu(&oneWire);
  
 float suhuSekarang;
 RTC_DS3231 rtc;
-Servo myservo;  // create servo object to control a servo
+
+int servoPin1 = 9;
+int servoPin2 = 10;
 Servo myservo1;  // create servo object to control a servo
+Servo myservo2;  // create servo object to control a servo
 
 char daysOfTheWeek[7][12] = {"Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"};
-int pos = 0;
+int servoAngle = 0;
 
 void setup () {
 
   Serial.begin(9600);
-  
-  delay(3000); 
+  myservo1.attach(servoPin1);
 
   if (! rtc.begin()) {
     Serial.println("RTC Mati");
@@ -64,7 +66,7 @@ void loop () {
     DateTime HariPertama = DateTime(__DATE__,__TIME__);
     DateTime now1 (2016, 11, 1, 0, 0, 0);
     int HariKe = ((HariPertama.secondstime() - now1.secondstime())/86400);
-    int RasioDelay = HariKe * 1000;
+    int RasioDelay = HariKe * 10000;
     
   //Tampilkan Waktu sekarang
     Serial.print(now.year(), DEC);
@@ -93,74 +95,80 @@ void loop () {
     suhuSekarang = ambilSuhu();
     Serial.print("Suhu : ");   
     Serial.println(suhuSekarang); 
+    myservo1.write(2);
+    
     delay(3000);
+
     
     //Pengaturan waktu 09:00 pemberian pakan 
-    if((now.hour() == 9 && now.minute() == 00 )){
-    delay(3000); 
-    myservo.attach(9); 
-    myservo.write(pos);
-    delay(2000);
-    for (pos = 0; pos <= 180;) { // servo berputar 180 derajat membuka katup pakan
-      
-      delay(RasioDelay); //delay sebanyak (HariKe*1s)
-      Serial.print("Pakan diberi sebanyak : ");
-      Serial.print(HariKe);
-      Serial.println("Gr");
-      
-      myservo.write(pos);   // servo menutup kembali katup pakan
-      
-      }
-      myservo.detach(); //Matikan Servo
-    } 
+    if((now.hour() == 20 && now.minute() == 11 ))
+    {
     
-    //Pengaturan waktu 12:00 pemberian pakan 
-    if((now.hour() == 12 && now.minute() == 00 )){
-    delay(3000); 
-    myservo.attach(9); 
-    myservo.write(pos);
-    delay(2000);
-    for (pos = 0; pos <= 180;) { // servo berputar 180 derajat membuka katup pakan
-      
+      myservo1.write(180); //buka katup pakan
       delay(RasioDelay); //delay sebanyak (HariKe*1s)
-      Serial.print("Pakan diberi sebanyak : ");
-      Serial.print(HariKe);
-      Serial.println("Gr");
+      Serial.println("++[ WAKTU PAKAN 1 ]++");
       
-      myservo.write(pos);   // servo menutup kembali katup pakan
-      
+      for (servoAngle = 180; servoAngle > 0; servoAngle--) 
+      { // servo berputar 180 derajat membuka katup pakan
+  
+        myservo1.write(servoAngle);          
+        delay(10);
       }
-      myservo.detach(); //Matikan Servo
-    } 
-
-    //Pengaturan waktu 17:00 pemberian pakan 
-    if((now.hour() == 18 && now.minute() == 6 )){
-    myservo.attach(9);
-    for (pos = 0; pos <= 180;) { // servo berputar 180 derajat membuka katup pakan
-      
-      delay(RasioDelay); //delay sebanyak (HariKe*1s)
-      Serial.print("Pakan diberi sebanyak : ");
-      Serial.print(HariKe);
-      Serial.println("Gr");
-      
-      myservo.write(0);   // servo menutup kembali katup pakan
-      
-      }
-      myservo.detach(); //Matikan Servo
-      
-    } 
-
-    //Jika suhu diatas 30 & pH diatas 9 servo kuras hidup
-    if((suhuSekarang > 30)){ 
-    myservo1.attach(10);
-    myservo1.write(pos);
-    delay(2000);
-      for (pos = 0; pos <= 180;) { // servo berputar 180 derajat membuka katup pakan
-
-        //Matikan Ketika LevelAirAtas==HIGH
+        myservo1.detach(); //Matikan Servo
         
-        } 
-    }
+        Serial.print("Pakan diberi sebanyak : ");
+        Serial.print(HariKe);
+        Serial.println("Gr");
+        Serial.println(" ");
+    } 
+//    
+//    //Pengaturan waktu 12:00 pemberian pakan 
+//    if((now.hour() == 12 && now.minute() == 00 )){
+//    delay(3000); 
+//    myservo.attach(9); 
+//    myservo.write(servoAngle);
+//    delay(2000);
+//    for (servoAngle = 0; servoAngle <= 180;) { // servo berputar 180 derajat membuka katup pakan
+//      
+//      delay(RasioDelay); //delay sebanyak (HariKe*1s)
+//      Serial.print("Pakan diberi sebanyak : ");
+//      Serial.print(HariKe);
+//      Serial.println("Gr");
+//      
+//      myservo.write(servoAngle);   // servo menutup kembali katup pakan
+//      
+//      
+//      myservo.detach(); //Matikan Servo
+//      }
+//    } 
+//
+//    //Pengaturan waktu 17:00 pemberian pakan 
+//    if((now.hour() == 18 && now.minute() == 11 )){
+//    //for (servoAngle = 0; servoAngle <= 180;) { // servo berputar 180 derajat membuka katup pakan
+//
+//      myservo.attach(9);
+//      myservo.write(90);   // servo menutup kembali katup pakan
+//      delay(RasioDelay); //delay sebanyak (HariKe*1s)
+//      Serial.print("Pakan diberi sebanyak : ");
+//      Serial.print(HariKe);
+//      Serial.println("Gr");
+//     
+//      myservo.write(0);   // servo menutup kembali katup pakan
+//      myservo.detach(); //Matikan Servo
+//      
+//    }
+//
+//    //Jika suhu diatas 30 & pH diatas 9 servo kuras hidup
+//    if((suhuSekarang > 28)){ 
+//    myservo.attach(9);
+//    myservo.write(servoAngle);
+//    delay(2000);
+//      for (servoAngle = 0; servoAngle <= 180;) { // servo berputar 180 derajat membuka katup pakan
+//
+//        //Matikan Ketika LevelAirAtas==HIGH
+//        Serial.println("Air Dikuras");
+//        } 
+//    } else myservo.detach();
 
 }
 

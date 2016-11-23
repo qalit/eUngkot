@@ -1,68 +1,44 @@
-// set pin numbers:
-const int a1 = 1;     
-const int a2 =  2;
-const int b1 =  3;
-const int b2 =  4;
-
-void setup() {
-  // initialize pins
-  pinMode(a1, OUTPUT);
-  pinMode(a2, OUTPUT);
-  pinMode(b1, OUTPUT);
-  pinMode(b2, OUTPUT);
+/*
+Into Robotics
+*/
  
-  digitalWrite(a1, LOW);
-  digitalWrite(a2, LOW);
-  digitalWrite(b1, LOW);
-  digitalWrite(b2, LOW);
-     
-}
-
-void loop(){
-
-  step1();
-  delay(10);
-  step2();
-  delay(10);
-  step3();
-  delay(10);
-  step4();
-  delay(10);
+#include <Servo.h>
  
+int servoPin = 9;
+ 
+Servo servo;  
+ 
+int servoAngle = 0;   // servo position in degrees
+ 
+void setup()
+{
+  Serial.begin(9600);  
+  servo.attach(servoPin);
 }
+ 
+ 
+void loop()
+{
+//control the servo's direction and the position of the motor
 
-void step1 (){
 
-  digitalWrite(a1, HIGH);
-  digitalWrite(a2, LOW);
-  digitalWrite(b1, LOW);
-  digitalWrite(b2, LOW);
+   //servo.write(2);      // Turn SG90 servo back to 90 degrees (center position)
+   servo.write(180);
+   delay(5000); 
 
-}
+//end control the servo's direction and the position of the motor
 
-void step2 (){
 
-  digitalWrite(a1, LOW);
-  digitalWrite(a2, LOW);
-  digitalWrite(b1, HIGH);
-  digitalWrite(b2, LOW);
+//control the servo's speed  
 
-}
+//if you change the delay value (from example change 50 to 10), the speed of the servo changes
 
-void step3 (){
+  for(servoAngle = 180; servoAngle > 0; servoAngle--)  //now move back the micro servo from 0 degrees to 180 degrees
+  {                                
+    servo.write(servoAngle);          
+    delay(10);
+  }
+  servo.detach();
 
-  digitalWrite(a1, LOW);
-  digitalWrite(a2, HIGH);
-  digitalWrite(b1, LOW);
-  digitalWrite(b2, LOW);
-
-}
-
-void step4 (){
-
-  digitalWrite(a1, LOW);
-  digitalWrite(a2, LOW);
-  digitalWrite(b1, LOW);
-  digitalWrite(b2, HIGH);
-
+  //end control the servo's speed  
 }
