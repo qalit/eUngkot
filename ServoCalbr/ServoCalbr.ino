@@ -1,44 +1,33 @@
-/*
-Into Robotics
-*/
- 
 #include <Servo.h>
  
-int servoPin = 9;
- 
-Servo servo;  
- 
-int servoAngle = 0;   // servo position in degrees
- 
-void setup()
-{
+int servoPin1 = 13;
+int servoPin2 = 12;
+Servo servo1;  
+Servo servo2;
+int servoAngle1 = 0;   // servo position in degrees
+int servoAngle2 = 0;
+
+void setup(){
   Serial.begin(9600);  
-  servo.attach(servoPin);
+  servo1.attach(servoPin1);
+  servo2.attach(servoPin2);
 }
- 
- 
-void loop()
-{
-//control the servo's direction and the position of the motor
 
+void loop(){
+   servo1.write(180);
+   delay(2000); 
 
-   //servo.write(2);      // Turn SG90 servo back to 90 degrees (center position)
-   servo.write(180);
-   delay(5000); 
-
-//end control the servo's direction and the position of the motor
-
-
-//control the servo's speed  
-
-//if you change the delay value (from example change 50 to 10), the speed of the servo changes
-
-  for(servoAngle = 180; servoAngle > 0; servoAngle--)  //now move back the micro servo from 0 degrees to 180 degrees
-  {                                
-    servo.write(servoAngle);          
+  for(servoAngle1 = 180; servoAngle1 > 0; servoAngle1--){                                
+    servo1.write(servoAngle1);          
     delay(10);
   }
-  servo.detach();
 
-  //end control the servo's speed  
+  servo2.write(180);
+   delay(2000); 
+
+  for(servoAngle2 = 180; servoAngle2 > 0; servoAngle2--){                                
+    servo2.write(servoAngle2);          
+    delay(10);
+  }
+
 }

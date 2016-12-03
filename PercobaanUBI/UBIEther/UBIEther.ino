@@ -1,6 +1,6 @@
-#include <UbidotsESP8266.h>
-#include <SoftwareSerial.h> 
-
+#include <SPI.h>
+#include <Ethernet.h>
+#include <UbidotsEthernet.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
@@ -9,30 +9,33 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensorSuhu(&oneWire);
 float suhuSekarang;
 
-#define ssid "Darkstar"
-#define pass "poss1234"
-
-#define ID "5829d046762542467bb8066d"
-#define ID2 "5829d051762542481c6f8e33"
+#define IDSuhu "5829c80d76254214e3f9d3a1"
 #define TOKEN "iGPgAzahoarBndo3RvDDUfln0z1aDK"
-
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+// Set the static IP address to use if the DHCP fails to assign
+IPAddress ip(192, 168, 0, 177);
+//DHCP IP untuk arduino
 Ubidots client(TOKEN);
 
 void setup() {
   Serial.begin(9600);
-  client.wifiConnection(ssid,pass);
+  if (Ethernet.begin(mac) == 0) {
+      Serial.println("Failed to configure Ethernet using DHCP");
+      // try to congifure using IP address instead of DHCP:
+      Ethernet.begin(mac, ip);
+  }
   suhuSekarang = ambilSuhu();
-  delay(1000);
+  delay(5000);
 }
 
 void loop() {
   suhuSekarang = ambilSuhu();
   Serial.print("Suhu : ");   
   Serial.println(sensorSuhu.getTempCByIndex(0));
-  client.add(ID, suhuSekarang);
+  client.add(IDSuhu, suhuSekarang);
   client.sendAll();
   Serial.println("----------");
-  delay(3000); //Delay 2 sec.
+  delay(5000); //Delay 2 sec.
     
 }
 float ambilSuhu(){

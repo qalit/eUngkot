@@ -30,17 +30,37 @@ RTC_DS3231 rtc;
 
 int servoPin1 = 9;
 int servoPin2 = 10;
-Servo myservo1;  // create servo object to control a servo
-Servo myservo2;  // create servo object to control a servo
+int servoPin3 = 11;
+int srvPinPasok = 13;
+int srvPinKuras = 12;
+Servo myservo1;  // servo pakan 1
+Servo myservo2;  // servo pakan 2
+Servo myservo3; // servo pakan 3
+Servo srvPasokAir; // servo pasok air
+Servo srvKurasAir; // servo kuras air
+
+int WLvlAtas = A2;
+int WLvlBawah = A3;
+
+int servoAngle = 0;
+int srvAngle1 = 0;
+int srvAngle2 = 0;
 
 char daysOfTheWeek[7][12] = {"Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"};
-int servoAngle = 0;
+
+int NilaiWLvlAtas = LOW;
+int NilaiWLvlBawah = LOW;
 
 void setup () {
-
   Serial.begin(9600);
   myservo1.attach(servoPin1);
-
+  myservo2.attach(servoPin2);
+  myservo3.attach(servoPin3);
+  srvPasokAir.attach(srvPinPasok);
+  srvKurasAir.attach(srvPinKuras);
+  pinMode(WLvlAtas, INPUT);
+  pinMode(WLvlBawah, INPUT);
+  
   if (! rtc.begin()) {
     Serial.println("RTC Mati");
     while (1);
@@ -55,13 +75,18 @@ void setup () {
 }
 
 void loop () {
-
+  NilaiWLvlAtas = analogRead(WLvlAtas);
+  NilaiWLvlBawah = analogRead(WLvlBawah);
+  
   //Bagian deklarasi waktu sekarang dan waktu sejak tebar pertama
     DateTime now = rtc.now();
     DateTime HariPertama = DateTime(__DATE__,__TIME__);
+    
+  //TGL hari pertama & jumlah lele
     DateTime now1 (2016, 11, 1, 0, 0, 0);
+    int JumlahLele = 100;
     int HariKe = ((HariPertama.secondstime() - now1.secondstime())/86400);
-    int RasioDelay = HariKe * 10000;
+    float RasioPakan = 0.0039;
     
   //Tampilkan Waktu sekarang
     Serial.print(now.year(), DEC);
@@ -83,7 +108,10 @@ void loop () {
     //hitung hari sejak program di upload
     Serial.print("Hari ke: ");
     Serial.print((HariKe));
-    Serial.print(" Sejak 1/11/16(Tebar Pertama)");
+    Serial.println(" Sejak 1/11/16(Tebar Pertama)");
+    Serial.print("Rasio Pakan Harus Diberi : ");
+    Serial.print((RasioPakan*HariKe*JumlahLele)); 
+    Serial.println(" Gram");
     Serial.println();
 
     //Ambil data suhu dan tampilkan
@@ -91,16 +119,20 @@ void loop () {
     Serial.print("Suhu : ");   
     Serial.println(suhuSekarang); 
     myservo1.write(2);
+    myservo2.write(2);
+    myservo3.write(2);
+    srvPasokAir.write(2);
+    srvKurasAir.write(2);
     
-    delay(3000);
+    delay(1000);
 
     
     //Pengaturan waktu 09:00 pemberian pakan 
-    if((now.hour() == 9 && now.minute() == 11 ))
+    if((now.hour() == 10 && now.minute() == 13 ))
     {
-    
+ 
       myservo1.write(180); //buka katup pakan
-      delay(RasioDelay); //delay sebanyak (HariKe*1s)
+      delay(RasioPakan*100000*HariKe); //delay sebanyak (HariKe*1s)
       Serial.println("++[ WAKTU PAKAN 1 ]++");
       
       for (servoAngle = 180; servoAngle > 0; servoAngle--) 
@@ -111,26 +143,26 @@ void loop () {
         myservo1.detach(); //Matikan Servo
         
         Serial.print("Pakan diberi sebanyak : ");
-        Serial.print(HariKe);
+        Serial.print(RasioPakan);
         Serial.println("Gr");
         Serial.println(" ");
     } 
  
     //Pengaturan waktu 12:00 pemberian pakan 
-    if((now.hour() == 12 && now.minute() == 1 ))
+    if((now.hour() == 10 && now.minute() == 15 ))
     {
       Serial.println("++[ WAKTU PAKAN 2 ]++");
-      myservo1.write(180); //buka katup pakan
-      delay(RasioDelay); //delay sebanyak (HariKe*1s)
+      myservo2.write(180); //buka katup pakan
+      delay(RasioPakan*100000*HariKe); //delay sebanyak (HariKe*1s)
       
       
       for (servoAngle = 180; servoAngle > 0; servoAngle--) 
       { // servo berputar 180 derajat membuka katup pakan
   
-        myservo1.write(servoAngle);          
+        myservo2.write(servoAngle);          
         delay(10);
       }
-        myservo1.detach(); //Matikan Servo
+        myservo2.detach(); //Matikan Servo
         
         Serial.print("Pakan diberi sebanyak : ");
         Serial.print(HariKe);
@@ -139,20 +171,20 @@ void loop () {
     } 
 
      //Pengaturan waktu 09:00 pemberian pakan 
-    if((now.hour() == 17 && now.minute() == 00 ))
+    if((now.hour() == 18 && now.minute() == 15 ))
     {
       Serial.println("++[ WAKTU PAKAN 3 ]++");
-      myservo1.write(180); //buka katup pakan
-      delay(RasioDelay); //delay sebanyak (HariKe*1s)
+      myservo3.write(180); //buka katup pakan
+      delay(RasioPakan*100000*HariKe); //delay sebanyak (HariKe*1s)
       
       
       for (servoAngle = 180; servoAngle > 0; servoAngle--) 
       { // servo berputar 180 derajat membuka katup pakan
   
-        myservo1.write(servoAngle);          
+        myservo3.write(servoAngle);          
         delay(10);
       }
-        myservo1.detach(); //Matikan Servo
+        myservo3.detach(); //Matikan Servo
         
         Serial.print("Pakan diberi sebanyak : ");
         Serial.print(HariKe);
@@ -161,16 +193,21 @@ void loop () {
     } 
 
     //Jika suhu diatas 30 & pH diatas 9 servo kuras hidup
-    if((suhuSekarang > 28)){ 
-    myservo2.attach();
-    myservo2.write(servoAngle);
-    delay(2000);
-      for (servoAngle = 0; servoAngle <= 180;) { // servo berputar 180 derajat membuka katup pakan
-
-        //Matikan Ketika LevelAirAtas==HIGH
-        Serial.println("Air Dikuras");
-        } 
-    } else myservo2.detach();
+    if(ambilSuhu() > 30){
+      Serial.println("++[ AIR DIKURAS ]++");
+      srvKurasAir.write(180); //buka katup pakan
+      srvPasokAir.write(1);
+      delay(5000);
+      }
+//      if (NilaiWLvlBawah == HIGH && NilaiWLvlAtas == LOW){
+//        Serial.println("++[ AIR DIPASOK]++");
+//        srvKurasAir.write(1);
+//        srvPasokAir.write(180);
+//        }
+//        if (NilaiWLvlAtas == HIGH && NilaiWLvlBawah == HIGH){
+//          srvKurasAir.write(0);
+//          srvPasokAir.write(0);
+//          } else{}
 
 }
 
