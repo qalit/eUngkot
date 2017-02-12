@@ -7,7 +7,7 @@ DallasTemperature sensorSuhu(&oneWire);
 float suhuSekarang;
  
 void setup(void){
-  Serial.begin(9600);
+  Serial.begin(115200);
   sensorSuhu.begin();
 }
  

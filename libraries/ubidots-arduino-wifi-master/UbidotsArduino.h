@@ -1,4 +1,3 @@
-
 /*
 Copyright (c) 2013-2016 Ubidots.
 
@@ -22,43 +21,54 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Made by Mateo Velez - Metavix for Ubidots Inc
+
 */
-#ifndef __UbidotsESP8266_H_
-#define __UbidotsESP8266_H_
-#define DEBUG_UBIDOTS
+#ifndef _UbidotsArduino_H_
+#define _UbidotsArduino_H_
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+#include <SPI.h>
 
-#include "Arduino.h"
-#include <SoftwareSerial.h>
 
-#define SERVER "translate.ubidots.com"
-#define PORT 9010
+#if defined(__AVR_ATmega328P__)||defined(__AVR_ATmega32U4__)||defined(__AVR_ATmega2560__)||defined (__AVR_ATtiny85__)
+    #include <WiFi.h>
+#else
+    #include "WiFi101.h"
+#endif
+
+#define SERVER "things.ubidots.com"
+#define PORT 80
 #define MAX_VALUES 5
-#define USER_AGENT "ESP8266"
-#define VERSION "1.2"
 
 typedef struct Value {
   char  *id;
-  char  *context_1;
   float value_id;
 } Value;
 
-class Ubidots{
+// Struct added by Dr. Juergen Leib
+typedef struct ubi_value {
+  char  *id;
+  float value;
+  unsigned long count;
+  unsigned long timestamp;
+  bool  valid;
+} ubi_value;
+
+class Ubidots {
+ public:
+    Ubidots(char* token, char* server = SERVER);
+    bool sendAll();
+    float * getValue(char* id);
+    void getValueInfo(ubi_value* dot);  // Function added by Dr. Juergen Leib
+    void add(char *variable_id, float value);
+
  private:
-    SoftwareSerial _client = SoftwareSerial(0, 1);
-    char* readData(uint16_t timeout);
-    void flushInput();
+    char* _token;
+    char* _server;
     uint8_t currentValue;
     Value * val;
-    char* _token;
-    char* _dsName;
-    char* _dsLabel;
-
- public:
-    Ubidots(char* token);
-    bool wifiConnection(char* ssid, char* pass);
-    bool saveValue(char *id, float value);
-    float getValue(char* id);
-    void add(char *variable_id, float value, char *context1 = NULL);
-    bool sendAll();  
+    WiFiClient _client;
 };
-#endif
+
+#endif  // _UbidotsArduino_H_

@@ -32,7 +32,7 @@ Made by Mateo Velez - Metavix for Ubidots Inc
  */
 Ubidots::Ubidots(char* token) {
     _token = token;
-    _client.begin(9600);
+    _client.begin(115200);
     currentValue = 0;
     _dsName = "ESP8266";
     _dsLabel = "esp-8266-identifier";
@@ -86,25 +86,25 @@ char* Ubidots::readData(uint16_t timeout) {
  */
 bool Ubidots::wifiConnection(char* ssid, char* pass) {
     _client.println(F("AT"));
-    if((strstr(readData(5000),"OK")==NULL)){
+    if((strstr(readData(10000),"OK")==NULL)){
 #ifdef DEBUG_UBIDOTS
         Serial.println(F("clearin data"));
 #endif
     }
     _client.println(F("AT+RST"));
-    if((strstr(readData(5000),"OK")==NULL)){
+    if((strstr(readData(10000),"OK")==NULL)){
 #ifdef DEBUG_UBIDOTS
         Serial.println(F("Reset of ESP8266"));
 #endif
     }
     _client.println(F("AT+GMR"));
-    if((strstr(readData(5000),"OK")==NULL)){
+    if((strstr(readData(2000),"ERROR")!=NULL)){
 #ifdef DEBUG_UBIDOTS
         Serial.println(F("Error at GMR"));
 #endif
     }
-    _client.println(F("AT+CWMODE=1"));
-    if((strstr(readData(5000),"ERROR")!=NULL)){
+    _client.println(F("AT+CWMODE=3"));
+    if((strstr(readData(2000),"ERROR")!=NULL)){
 #ifdef DEBUG_UBIDOTS
         Serial.println(F("Error with AT+CWMODE"));
 #endif
@@ -115,14 +115,14 @@ bool Ubidots::wifiConnection(char* ssid, char* pass) {
     _client.print(F("\",\""));
     _client.print(pass);
     _client.println(F("\""));            
-    if(strstr(readData(20000),"ERROR")!=NULL){
+    if(strstr(readData(15000),"ERROR")!=NULL){
 #ifdef DEBUG_UBIDOTS
         Serial.println(F("Error with AT+CWJAP"));
 #endif
         return false;
     }
     _client.println(F("AT+CIFSR"));
-    if((strstr(readData(10000),"ERROR")!=NULL)){
+    if((strstr(readData(2000),"ERROR")!=NULL)){
     
 #ifdef DEBUG_UBIDOTS
         Serial.println(F("Error with AT+CIFSR"));
@@ -141,13 +141,13 @@ float Ubidots::getValue(char* id) {
     uint8_t bodyPosinit;
     uint8_t bodyPosend;
     _client.println(F("AT"));
-    if((strstr(readData(2000),"OK")==NULL)){
+    if((strstr(readData(10000),"OK")==NULL)){
 #ifdef DEBUG_UBIDOTS
         Serial.println(F("clearin data"));
 #endif
     }
     _client.println(F("AT+CIPMUX=0"));
-    if(strstr(readData(3000),"ERROR")!=NULL){
+    if(strstr(readData(3000),"OK")!=NULL){
         Serial.println(F("Error at CIPMUX"));        
         return false;
     }
@@ -157,12 +157,12 @@ float Ubidots::getValue(char* id) {
         return false;
     }
     _client.println(F("AT+CIPMODE=1"));
-    if(strstr(readData(2000),"OK")==NULL){
+    if(strstr(readData(2000),"OK")!=NULL){
         Serial.println(F("Error at CIPMODE"));        
         return false;
     }
     _client.println(F("AT+CIPSEND"));
-    if(strstr(readData(5000),">")==NULL){
+    if(strstr(readData(20000),">")==NULL){
         Serial.println(F("Error at CIPSEND"));        
         return false;
     }
@@ -176,7 +176,7 @@ float Ubidots::getValue(char* id) {
     _client.println(F("Connection: close"));
     _client.println();
     _client.println(F("+++"));
-    char* reply = readData(10000);
+    char* reply = readData(15000);
     char* pch = strstr(reply,"\"value\":");
     raw = String(pch);
     bodyPosinit =9+ raw.indexOf("\"value\":");
@@ -221,7 +221,7 @@ bool Ubidots::sendAll() {
     Serial.println(data);
     // Next for is to calculate the lenght of the data that you will send
     _client.println(F("AT+CIPMUX=0"));
-    if(strstr(readData(3000),"ERROR")!=NULL){
+    if(strstr(readData(3000),"OK")!=NULL){
         Serial.println(F("Error at CIPMUX"));        
         return false;
     }
@@ -234,12 +234,12 @@ bool Ubidots::sendAll() {
         return false;
     }
     _client.println(F("AT+CIPMODE=1"));
-    if(strstr(readData(2000),"OK")==NULL){
+    if(strstr(readData(2000),"OK")!=NULL){
         Serial.println(F("Error at CIPMODE"));        
         return false;
     }
     _client.println(F("AT+CIPSEND"));
-    if(strstr(readData(5000),">")==NULL){
+    if(strstr(readData(20000),">")!=NULL){
         Serial.println(F("Error CIPSEND"));        
         return false;
     }
