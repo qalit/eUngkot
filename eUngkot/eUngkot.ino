@@ -26,9 +26,10 @@ int buf[10],temp;
 #define ONE_WIRE_BUS 2
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensorSuhu(&oneWire);
- 
 float suhuSekarang;
+
 RTC_DS3231 rtc;
+char daysOfTheWeek[7][12] = {"Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"};
 
 int WLvlAtas = 6;
 int WLvlBawah = 7;
@@ -45,8 +46,6 @@ Servo srvPasokAir; // servo pasok air
 Servo srvKurasAir; // servo kuras air
 
 int servoAngle = 0;
-
-char daysOfTheWeek[7][12] = {"Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"};
 
 void setup () {
   Serial.begin(9600);
@@ -80,7 +79,7 @@ void loop () {
   myservo3.write(2);
   myservo4.write(2);
   srvKurasAir.write(2);
-  delay(2000);
+  delay(500);
   srvKurasAir.detach();
   
   //Bagian deklarasi waktu sekarang dan waktu sejak tebar pertama
@@ -155,7 +154,7 @@ void loop () {
     int NilaiWLvlBawah = digitalRead(WLvlBawah);
     
     //Pengaturan waktu 09:00 pemberian pakan 
-    if((now.hour() == 20 && now.minute() == 45 ))
+    if((now.hour() == 11 && now.minute() == 35 ))
     {
       if(HariKe >= 1 && HariKe <= 28){
         myservo1.write(90); //buka katup pakan
@@ -321,10 +320,10 @@ void loop () {
         srvKurasAir.write(0); //buka katup pakan
         delay(2000);
         srvKurasAir.detach();
-        digitalWrite(13, HIGH);  
+        digitalWrite(LED_BUILTIN, HIGH);  
      }
      if (NilaiWLvlAtas == LOW && NilaiWLvlBawah == LOW){
-          digitalWrite(13, LOW);     
+          digitalWrite(LED_BUILTIN, LOW);     
      }
 
 }

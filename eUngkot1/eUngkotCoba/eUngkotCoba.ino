@@ -86,6 +86,7 @@ void setup () {
 }
 
 void loop () {
+  delay(500);
   myservo1.write(2);
   myservo2.write(2);
   myservo3.write(2);
@@ -104,22 +105,6 @@ void loop () {
     int HariKe = ((HariPertama.secondstime() - HariTebar.secondstime())/86400);
     float RasioPakan = 0.0039;
     
-  //hitung hari sejak program di upload
-    lcd.setCursor(0,0);
-    lcd.print("Hari: ");
-    lcd.print((HariKe));
-    lcd.setCursor(0,1);
-    lcd.print("Pakan: ");
-    lcd.print((RasioPakan*HariKe*JumlahLele)); 
-    lcd.print(" Gram");
-    Serial.print("Hari ke: ");
-    Serial.print((HariKe));
-    Serial.println(" Sejak 1/12/16(Tebar Pertama)");
-    Serial.print("Rasio Pakan Harus Diberi : ");
-    Serial.print((RasioPakan*HariKe*JumlahLele)); 
-    Serial.println(" Gram");
-    Serial.println();
-    
   //Tampilkan Waktu sekarang
     lcd.setCursor(0,0);
     lcd.print(now.year(), DEC);
@@ -130,7 +115,6 @@ void loop () {
     lcd.print(" (");
     lcd.print(daysOfTheWeek[now.dayOfTheWeek()]);
     lcd.print(") ");
-    lcd.setCursor(0,1);
     lcd.print(now.hour(), DEC);
     lcd.print(':');
     lcd.print(now.minute(), DEC);
@@ -151,6 +135,28 @@ void loop () {
     Serial.print(':');
     Serial.print(now.second(), DEC);
     Serial.println();
+
+      //hitung hari sejak program di upload
+    lcd.setCursor(0,1);
+    lcd.print("Hari: ");
+    lcd.print(HariKe);
+    lcd.print(" Pakan: ");
+    lcd.print(RasioPakan*HariKe*JumlahLele); 
+    lcd.print(" Gram");
+    Serial.print("Hari ke: ");
+    Serial.print((HariKe));
+    Serial.println(" Sejak 1/12/16(Tebar Pertama)");
+    Serial.print("Rasio Pakan Harus Diberi : ");
+    Serial.print((RasioPakan*HariKe*JumlahLele)); 
+    Serial.println(" Gram");
+    Serial.println();
+    
+    for(int i = 0; i < 16; i++){
+      lcd.scrollDisplayLeft();
+      delay(500);
+    }
+    lcd.clear();
+    delay(1000);
     
     WLvlAtas = digitalRead(WLvlAtas);
     WLvlBawah = digitalRead(WLvlBawah);
@@ -185,17 +191,18 @@ void loop () {
     Serial.print("pH:");  
     Serial.println(phValue);
     
-    lcd.setCursor(0,1);
     //Ambil data suhu dan tampilkan
+    lcd.setCursor(0,1);
     suhuSekarang = ambilSuhu();
     lcd.print("Suhu : ");   
     lcd.println(suhuSekarang); 
     Serial.print("Suhu : ");   
     Serial.println(suhuSekarang); 
     delay(2000);
+    lcd.clear();
     
     //Pengaturan waktu 09:00 pemberian pakan 
-    if((now.hour() == 17 && now.minute() == 35 ))
+    if((now.hour() == 13 && now.minute() == 29 ))
     {
      lcd.clear();
      lcd.setCursor(0,0);
@@ -208,7 +215,7 @@ void loop () {
         for (servoAngle = 90; servoAngle > 0; servoAngle--) 
         { // servo kembali ke posisi 0 menutup kotak pakan
           myservo1.write(servoAngle);          
-          delay(5);
+          delay(15);
         }
         myservo2.write(90); //buka katup pakan
         delay(600); //delay sebanyak (HariKe*1s)
@@ -216,7 +223,7 @@ void loop () {
         for (servoAngle = 90; servoAngle > 0; servoAngle--) 
         { // servo kembali ke posisi 0 menutup kotak pakan
           myservo2.write(servoAngle);          
-          delay(5);
+          delay(15);
         }
           
           Serial.print("Pakan diberi sebanyak : ");
@@ -232,7 +239,7 @@ void loop () {
         for (servoAngle = 90; servoAngle > 0; servoAngle--) 
         { // servo kembali ke posisi 0 menutup kotak pakan
           myservo3.write(servoAngle);          
-          delay(1000*RasioPakan*HariKe*JumlahLele);
+          delay(15);
         }
         myservo4.write(90); //buka katup pakan
         delay(500); //delay sebanyak (HariKe*1s)
@@ -240,7 +247,7 @@ void loop () {
         for (servoAngle = 90; servoAngle > 0; servoAngle--) 
         { // servo kembali ke posisi 0 menutup kotak pakan
           myservo4.write(servoAngle);          
-          delay(1000*RasioPakan*HariKe*JumlahLele);
+          delay(15);
         }
           
           Serial.print("Pakan diberi sebanyak : ");
@@ -248,10 +255,11 @@ void loop () {
           Serial.println("Gr");
           Serial.println(" ");
       } 
+      lcd.clear();
     } 
  
     //Pengaturan waktu 12:00 pemberian pakan 
-    if((now.hour() == 17 && now.minute() == 4 ))
+    if((now.hour() == 13 && now.minute() == 30 ))
     {
       lcd.clear();
       lcd.setCursor(0,0);
@@ -264,7 +272,7 @@ void loop () {
         for (servoAngle = 90; servoAngle > 0; servoAngle--) 
         { // servo kembali ke posisi 0 menutup kotak pakan
           myservo1.write(servoAngle);          
-          delay(800*RasioPakan*HariKe*JumlahLele);
+          delay(15);
         }
         myservo2.write(90); //buka katup pakan
         delay(400); //delay sebanyak (HariKe*1s)
@@ -272,7 +280,7 @@ void loop () {
         for (servoAngle = 90; servoAngle > 0; servoAngle--) 
         { // servo kembali ke posisi 0 menutup kotak pakan
           myservo2.write(servoAngle);          
-          delay(800*RasioPakan*HariKe*JumlahLele);
+          delay(15);
         }
           Serial.print("Pakan diberi sebanyak : ");
           Serial.print(RasioPakan*HariKe*JumlahLele);
@@ -287,7 +295,7 @@ void loop () {
         for (servoAngle = 90; servoAngle > 0; servoAngle--) 
         { // servo kembali ke posisi 0 menutup kotak pakan
           myservo3.write(servoAngle);          
-          delay(600*RasioPakan*HariKe*JumlahLele);
+          delay(15);
         }
         myservo4.write(90); //buka katup pakan
         delay(300); //delay sebanyak (HariKe*1s)
@@ -295,7 +303,7 @@ void loop () {
         for (servoAngle = 90; servoAngle > 0; servoAngle--) 
         { // servo kembali ke posisi 0 menutup kotak pakan
           myservo4.write(servoAngle);          
-          delay(600*RasioPakan*HariKe*JumlahLele);
+          delay(15);
         }
           
           Serial.print("Pakan diberi sebanyak : ");
@@ -303,10 +311,11 @@ void loop () {
           Serial.println("Gr");
           Serial.println(" ");
       }
+      lcd.clear();
     }
 
      //Pengaturan waktu 17:00 pemberian pakan 
-     if((now.hour() == 17 && now.minute() == 6))
+     if((now.hour() == 13 && now.minute() == 31))
      {
       lcd.clear();
       lcd.setCursor(0,0);
@@ -319,7 +328,7 @@ void loop () {
         for (servoAngle = 90; servoAngle > 0; servoAngle--) 
         { // servo kembali ke posisi 0 menutup kotak pakan
           myservo1.write(servoAngle);          
-          delay(400*RasioPakan*HariKe*JumlahLele);
+          delay(15);
         }
         myservo2.write(90); //buka katup pakan
         delay(200); //delay sebanyak (HariKe*1s)
@@ -327,7 +336,7 @@ void loop () {
         for (servoAngle = 90; servoAngle > 0; servoAngle--) 
         { // servo kembali ke posisi 0 menutup kotak pakan
           myservo2.write(servoAngle);          
-          delay(400*RasioPakan*HariKe*JumlahLele);
+          delay(15);
         }
           Serial.print("Pakan diberi sebanyak : ");
           Serial.print(RasioPakan*HariKe*JumlahLele);
@@ -343,7 +352,7 @@ void loop () {
         for (servoAngle = 90; servoAngle > 0; servoAngle--) 
         { // servo kembali ke posisi 0 menutup kotak pakan
           myservo3.write(servoAngle);          
-          delay(200*RasioPakan*HariKe*JumlahLele);
+          delay(15);
         }
         myservo4.write(90); //buka katup pakan
         delay(100); //delay sebanyak (HariKe*1s)
@@ -351,44 +360,38 @@ void loop () {
         for (servoAngle = 90; servoAngle > 0; servoAngle--) 
         { // servo kembali ke posisi 0 menutup kotak pakan
           myservo4.write(servoAngle);          
-          delay(200*RasioPakan*HariKe*JumlahLele);
+          delay(15);
         }
           Serial.print("Pakan diberi sebanyak : ");
           Serial.print(RasioPakan*HariKe*JumlahLele);
           Serial.println("Gr");
           Serial.println(" ");
       }
+      lcd.clear();
     }
 
+    delay(2000);
     //Jika suhu diatas 30 & pH diatas 9 servo kuras hidup
-    if(suhuSekarang >= 30 ){
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print(" AIR DIKURAS ");
+ //Jika suhu diatas 30 & pH diatas 9 servo kuras hidup
+    if(suhuSekarang > 30 || phValue > 9 || phValue < 5){
       Serial.println("++[ AIR DIKURAS ]++");
       srvKurasAir.attach(srvPinKuras);
+      delay(1000);
       srvKurasAir.write(90); //buka katup pakan
-      delay(5000);
+      delay(1000);
       srvKurasAir.detach();
-    }
-    if (WLvlBawah != LOW){
-       
-        srvKurasAir.attach(srvPinKuras);
-        srvKurasAir.write(0); //buka katup pakan
-        delay(5000);
-        lcd.print(" AIR DIPASOK ");
+      
+    } else if (NilaiWLvlAtas == HIGH && NilaiWLvlBawah == HIGH){
         Serial.println("++[ AIR DIPASOK]++");
-        for (servoAngle = 90; servoAngle > 0; servoAngle--) 
-        { 
-         srvKurasAir.write(servoAngle);          
-          delay(10);
-          srvKurasAir.detach();
-        }
-        digitalWrite(13, HIGH);  
+        srvKurasAir.write(0); //buka katup pakan
+        delay(2000);
+        srvKurasAir.detach();
+        digitalWrite(LED_BUILTIN, HIGH);  
      }
-     if (WLvlAtas == LOW && WLvlBawah == LOW){
-          digitalWrite(13, LOW);     
+     else if (NilaiWLvlAtas == LOW && NilaiWLvlBawah == LOW){
+          digitalWrite(LED_BUILTIN, LOW);     
      }
+    
 
 }
 

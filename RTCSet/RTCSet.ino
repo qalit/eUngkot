@@ -11,7 +11,7 @@ void setup () {
     RTC.begin();
   if (!RTC.isrunning()) {
     Serial.println("RTC is NOT running!");
-    //RTC.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    RTC.adjust(DateTime(F(__DATE__), F(__TIME__)));
   }
   lcd.init();
   lcd.backlight();
