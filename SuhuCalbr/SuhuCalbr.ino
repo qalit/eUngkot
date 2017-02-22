@@ -8,6 +8,7 @@ float suhuSekarang;
  
 void setup(void){
   Serial.begin(115200);
+  pinMode(1, OUTPUT);
   sensorSuhu.begin();
 }
  
@@ -17,6 +18,10 @@ void loop(void){
   Serial.println(sensorSuhu.getTempCByIndex(0));         
   
   delay(1000);
+  if(suhuSekarang >= 30 ){
+    Serial.println("++[ AIR DIPASOK ]++");
+    digitalWrite(1, HIGH);
+  }
 }
  
 float ambilSuhu(){

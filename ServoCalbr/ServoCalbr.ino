@@ -14,6 +14,8 @@ void setup(){
 }
 
 void loop(){
+  
+  servo1.attach(servoPin1);
    servo1.write(90);
    delay(2000); 
 
@@ -21,6 +23,7 @@ void loop(){
     servo1.write(servoAngle1);          
     delay(10);
   }
+  servo1.detach();
 
   servo2.write(90);
    delay(2000); 

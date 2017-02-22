@@ -1,46 +1,58 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <UbidotsEthernet.h>
+#include <RTClib.h>
+#include <Servo.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+// Set the static IP address to use if the DHCP fails to assign
+IPAddress ip(192, 168, 0, 177);
+
+unsigned long interval=1000; // the time we need to wait
+unsigned long interval1=20000;
+unsigned long previousMillis=0; // millis() returns an unsigned long.
 
 #define ONE_WIRE_BUS 2
-#define PHSensorPin 0  
+#define PHSensorPin 0          //pH meter Analog output to Arduino Analog Input 0
+unsigned long int avgValue;  //Store the average value of the sensor feedback
+float b;
+int buf[10],temp;
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensorSuhu(&oneWire);
+float suhuSekarang;
+
 #define IDSuhu "5829c80d76254214e3f9d3a1"
 #define IDpH "58a9dd0b762542238e7cf8ae"
 #define TOKEN "iGPgAzahoarBndo3RvDDUfln0z1aDK"
 
-OneWire oneWire(ONE_WIRE_BUS);
-DallasTemperature sensorSuhu(&oneWire);
-float suhuSekarang;
-unsigned long int avgValue; 
-float b;
-int buf[10],temp;
-
 Ubidots client(TOKEN);
-byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-IPAddress ip(192, 168, 0, 177);
 
 void setup(){
-  Serial.begin(9600);
-  
+  //Serial.begin(9600);
+//  pinMode(4,OUTPUT);
+//  digitalWrite(4,HIGH);
+
   if (Ethernet.begin(mac) == 0) {
-      Serial.println("Ether Failed");
+      //Serial.println("Failed to configure Ethernet using DHCP");
+      // try to congifure using IP address instead of DHCP:
       Ethernet.begin(mac, ip);
   }
-  
-  suhuSekarang = ambilSuhu();
-  delay(5000);
+  unsigned long currentMillis = millis();
+  if ((unsigned long)(currentMillis - previousMillis) >= interval) {
+     previousMillis = millis()+4000;
+  }
+
 }
 
 void loop() {
-  suhuSekarang = ambilSuhu();
-  Serial.print("Suhu : ");   
-  Serial.println(sensorSuhu.getTempCByIndex(0));
-   // Sensor pH
+  unsigned long currentMillis = millis();
+  
   for(int i=0;i<10;i++){ 
       buf[i]=analogRead(PHSensorPin);
-      delay(10);
+      if ((unsigned long)(currentMillis - previousMillis) >= interval) {
+        previousMillis = millis();
+      }
   }
   for(int i=0;i<9;i++){
     for(int j=i+1;j<10;j++){
@@ -57,16 +69,14 @@ void loop() {
   
   float phValue=(float)avgValue*5.0/1024/6; //convert the analog into millivolt
   phValue=3.5*phValue;
-  delay(1000);
- 
-  client.add(IDSuhu, suhuSekarang);
+  sensorSuhu.requestTemperatures();
+  float suhu = sensorSuhu.getTempCByIndex(0);
+  client.add(IDSuhu, suhu);
   client.add(IDpH, phValue);
-  client.sendAll();
-  delay(20000); //Delay 20 sec to send and get respon to eungkot  
-}
-float ambilSuhu(){
-   sensorSuhu.requestTemperatures();
-   float suhu = sensorSuhu.getTempCByIndex(0);
-   return suhu;  
-
+  //Serial.println(suhu);
+  //Serial.println(phValue);
+  if ((unsigned long)(currentMillis - previousMillis) >= interval1) {
+     previousMillis = millis();     
+     client.sendAll();
+  }
 }

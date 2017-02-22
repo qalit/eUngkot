@@ -33,7 +33,7 @@ char daysOfTheWeek[7][12] = {"Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"};
 
 int WLvlAtas = 6;
 int WLvlBawah = 7;
-int servoPin1 = 8;
+int servoPin1 = 3;
 int servoPin2 = 9;
 int servoPin3 = 10;
 int servoPin4 = 11;
@@ -86,8 +86,9 @@ void setup () {
 }
 
 void loop () {
-  suhuSekarang = ambilSuhu();
-  
+  sensorSuhu.requestTemperatures();
+  float suhu = sensorSuhu.getTempCByIndex(0);
+  delay(100);
   // Sensor pH
   for(int i=0;i<10;i++)       //Get 10 sample value from the sensor for smooth the value
   { 
@@ -116,13 +117,13 @@ void loop () {
   
   //Ambil data suhu dan tampilkan
   Serial.print("Suhu : ");   
-  Serial.println(suhuSekarang); 
+  Serial.println(suhu); 
   delay(2000);
   int NilaiWLvlAtas = digitalRead(WLvlAtas);
   int NilaiWLvlBawah = digitalRead(WLvlBawah);
 
  //Jika suhu diatas 30 & pH diatas 9 servo kuras hidup
-  if(suhuSekarang >= 30 || phValue >= 9 || phValue <= 5){
+  if(suhu >= 30 || phValue >= 9 || phValue <= 5){
     Serial.println("++[ AIR DIKURAS ]++");
     srvKurasAir.attach(srvPinKuras);
     srvKurasAir.write(90); //buka katup pakan
@@ -146,7 +147,7 @@ void loop () {
   DateTime HariPertama = DateTime(__DATE__,__TIME__);
   
   //TGL hari pertama & jumlah lele
-  DateTime HariTebar (2017, 1, 1, 0, 0, 0);
+  DateTime HariTebar (2017, 2, 1, 0, 0, 0);
   int JumlahLele = 100;
   int HariKe = ((HariPertama.secondstime() - HariTebar.secondstime())/86400);
   float RasioPakan = 0.0039;
@@ -180,7 +181,7 @@ void loop () {
   Serial.println("<========================>");
     
   //Pengaturan waktu 09:00 pemberian pakan 
-  if((now.hour() == 14 && now.minute() == 58 ))
+  if((now.hour() == 14 && now.minute() == 39 ))
   {
     if(HariKe >= 1 && HariKe <= 28){
       myservo1.attach(servoPin1);
@@ -355,10 +356,4 @@ void loop () {
     }
     delay(2000);
 
-}
-
-float ambilSuhu(){
-   sensorSuhu.requestTemperatures();
-   float suhu = sensorSuhu.getTempCByIndex(0)+1;
-   return suhu;   
 }
