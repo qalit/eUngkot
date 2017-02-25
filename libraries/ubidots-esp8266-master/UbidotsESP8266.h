@@ -44,7 +44,7 @@ typedef struct Value {
 
 class Ubidots{
  private:
-    SoftwareSerial _client = SoftwareSerial(0, 1);
+    SoftwareSerial _client = SoftwareSerial(9, 8);
     char* readData(uint16_t timeout);
     void flushInput();
     uint8_t currentValue;

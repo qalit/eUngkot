@@ -31,13 +31,13 @@ float suhuSekarang;
 RTC_DS3231 rtc;
 char daysOfTheWeek[7][12] = {"Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"};
 
-int WLvlAtas = 6;
-int WLvlBawah = 7;
-int servoPin1 = 3;
-int servoPin2 = 9;
-int servoPin3 = 10;
-int servoPin4 = 11;
-int srvPinKuras = 12;
+int WLvlAtas = 3;
+int WLvlBawah = 4;
+int servoPin1 = 5;
+int servoPin2 = 6;
+int servoPin3 = 7;
+int servoPin4 = 8;
+int srvPinKuras = 9;
 Servo myservo1;  // servo pakan 1
 Servo myservo2;  // servo pakan 2
 Servo myservo3; // servo pakan 3
@@ -70,16 +70,8 @@ void setup () {
   pinMode(WLvlAtas, INPUT_PULLUP);
   pinMode(WLvlBawah, INPUT_PULLUP);
   
-  if (! rtc.begin()) {
-    Serial.println("RTC Mati");
-    while (1);
-  }
-
-  if (rtc.lostPower()) {
-    //rtc.adjust(DateTime(__DATE__,__TIME__));
-    Serial.println("RTC lowbat !!");
-  
-  }
+  rtc.begin();
+ 
 
   sensorSuhu.begin();
   
@@ -130,7 +122,7 @@ void loop () {
     delay(2000);
     srvKurasAir.detach();
   }
-  if (NilaiWLvlAtas == LOW && NilaiWLvlBawah == LOW){
+  if (NilaiWLvlAtas == HIGH && NilaiWLvlBawah == HIGH){
       Serial.println("++[ AIR DIPASOK]++");
       srvKurasAir.attach(srvPinKuras);
       srvKurasAir.write(0); //buka katup pakan
@@ -138,7 +130,7 @@ void loop () {
       srvKurasAir.detach();
       digitalWrite(LED_BUILTIN, HIGH);  
   }
-  if (NilaiWLvlAtas == HIGH && NilaiWLvlBawah == HIGH){
+  if (NilaiWLvlAtas == LOW && NilaiWLvlBawah == LOW){
       digitalWrite(LED_BUILTIN, LOW);     
   }
     
@@ -181,7 +173,7 @@ void loop () {
   Serial.println("<========================>");
     
   //Pengaturan waktu 09:00 pemberian pakan 
-  if((now.hour() == 14 && now.minute() == 39 ))
+  if((now.hour() == 12 && now.minute() == 10 ))
   {
     if(HariKe >= 1 && HariKe <= 28){
       myservo1.attach(servoPin1);

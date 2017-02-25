@@ -31,7 +31,7 @@ int WLvlAtas = 6;
 int WLvlBawah = 7;
 int servoPin1 = 3;
 int servoPin2 = 9;
-int servoPin3 = 10;
+int servoPin3 = 5;
 int servoPin4 = 11;
 int srvPinKuras = 12;
 Servo myservo1;  // servo pakan 1

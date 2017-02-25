@@ -16,7 +16,7 @@ Ubidots::Ubidots(char* token){
 float Ubidots::getValue(char* id){
   float num;
   String raw;
-  char reply[500];
+  char reply[100];
   char response[10];
   int i = 0;
   uint8_t bodyPosinit;
