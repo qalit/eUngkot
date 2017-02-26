@@ -31,8 +31,8 @@ float suhuSekarang;
 RTC_DS3231 rtc;
 char daysOfTheWeek[7][12] = {"Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"};
 
-int WLvlAtas = 3;
-int WLvlBawah = 4;
+int WLvlAtas = A1;
+int WLvlBawah = A2;
 int servoPin1 = 5;
 int servoPin2 = 6;
 int servoPin3 = 7;
@@ -111,8 +111,8 @@ void loop () {
   Serial.print("Suhu : ");   
   Serial.println(suhu); 
   delay(2000);
-  int NilaiWLvlAtas = digitalRead(WLvlAtas);
-  int NilaiWLvlBawah = digitalRead(WLvlBawah);
+  int NilaiWLvlAtas = analogRead(WLvlAtas);
+  int NilaiWLvlBawah = analogRead(WLvlBawah);
 
  //Jika suhu diatas 30 & pH diatas 9 servo kuras hidup
   if(suhu >= 30 || phValue >= 9 || phValue <= 5){
@@ -122,16 +122,16 @@ void loop () {
     delay(2000);
     srvKurasAir.detach();
   }
-  if (NilaiWLvlAtas == HIGH && NilaiWLvlBawah == HIGH){
+  if (NilaiWLvlAtas >= 1000 && NilaiWLvlBawah >= 1000){
       Serial.println("++[ AIR DIPASOK]++");
       srvKurasAir.attach(srvPinKuras);
       srvKurasAir.write(0); //buka katup pakan
       delay(2000);
       srvKurasAir.detach();
-      digitalWrite(LED_BUILTIN, HIGH);  
+      analogWrite(A3, 255);  
   }
-  if (NilaiWLvlAtas == LOW && NilaiWLvlBawah == LOW){
-      digitalWrite(LED_BUILTIN, LOW);     
+  if (NilaiWLvlAtas <= 1000 && NilaiWLvlBawah <= 1000){
+      analogWrite(A3, 0);      
   }
     
   //Bagian deklarasi waktu sekarang dan waktu sejak tebar pertama

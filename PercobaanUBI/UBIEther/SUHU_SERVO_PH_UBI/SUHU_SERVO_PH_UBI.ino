@@ -43,8 +43,8 @@ unsigned long previousMillis=0; // millis() returns an unsigned long.
 RTC_DS3231 rtc;
 char daysOfTheWeek[7][12] = {"Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"};
 
-int WLvlAtas = 3;
-int WLvlBawah = 4;
+int WLvlAtas = A1;
+int WLvlBawah = A2;
 int servoPin1 = 5;
 int servoPin2 = 6;
 int servoPin3 = 7;
@@ -84,16 +84,13 @@ void setup () {
   }
   pinMode(WLvlAtas, INPUT_PULLUP);
   pinMode(WLvlBawah, INPUT_PULLUP);
+  pinMode(1, OUTPUT);
   
   if (! rtc.begin()) {
-    Serial.println("RTC Mati");
     while (1);
   }
 
-  if (rtc.lostPower()) {
-    //rtc.adjust(DateTime(__DATE__,__TIME__));
-    Serial.println("RTC lowbat !!");
-  
+  if (rtc.lostPower()) {  
   }
   delay(2000);
 }
@@ -129,68 +126,41 @@ void loop () {
   //if ((unsigned long)(currentMillis - previousMillis) >= interval1) {
 
 
-    int NilaiWLvlAtas = digitalRead(WLvlAtas);
-    int NilaiWLvlBawah = digitalRead(WLvlBawah);
+    int NilaiWLvlAtas = analogRead(WLvlAtas);
+    int NilaiWLvlBawah = analogRead(WLvlBawah);
         //Jika suhu diatas 30 & pH diatas 9 servo kuras hidup
-    if(suhu >= 30 || phValue >= 9 || phValue <= 5){
-      Serial.println("++[ AIR DIKURAS ]++");
+  if(suhu >= 30 || phValue >= 9 || phValue <= 5){
+    Serial.println("++[ AIR DIKURAS ]++");
+    srvKurasAir.attach(srvPinKuras);
+    srvKurasAir.write(90); //buka katup pakan
+    delay(2000);
+    srvKurasAir.detach();
+  }
+  if (NilaiWLvlAtas >= 1000 && NilaiWLvlBawah >= 1000){
+      Serial.println("++[ AIR DIPASOK]++");
       srvKurasAir.attach(srvPinKuras);
-      srvKurasAir.write(90); //buka katup pakan
+      srvKurasAir.write(0); //buka katup pakan
       delay(2000);
       srvKurasAir.detach();
-    }
-    if (NilaiWLvlAtas == HIGH && NilaiWLvlBawah == HIGH){
-        Serial.println("++[ AIR DIPASOK]++");
-        srvKurasAir.attach(srvPinKuras);
-        srvKurasAir.write(0); //buka katup pakan
-        delay(2000);
-        srvKurasAir.detach();
-        digitalWrite(LED_BUILTIN, HIGH);  
-     }
-     if (NilaiWLvlAtas == LOW && NilaiWLvlBawah == LOW){
-          digitalWrite(LED_BUILTIN, LOW);     
-     }
-    Serial.println("<========================>");
+      analogWrite(A3, 255);  
+  }
+  if (NilaiWLvlAtas <= 1000 && NilaiWLvlBawah <= 1000){
+      analogWrite(A3, 0);      
+  }
     
     //Bagian deklarasi waktu sekarang dan waktu sejak tebar pertama
     DateTime now = rtc.now();
     DateTime HariPertama = DateTime(__DATE__,__TIME__);
     
   //TGL hari pertama & jumlah lele
-    DateTime HariTebar (2017, 2, 1, 0, 0, 0);
+    DateTime HariTebar (2017, 1, 15, 0, 0, 0);
     int JumlahLele = 100;
     int HariKe = ((HariPertama.secondstime() - HariTebar.secondstime())/86400);
     float RasioPakan = 0.0039;
     float RasioHarian = RasioPakan*HariKe*JumlahLele;
     
-  //hitung hari sejak program di upload
-    Serial.print("Hari ke: ");
-    Serial.print((HariKe));
-    Serial.println(" Sejak 1/12/16(Tebar Pertama)");
-    Serial.print("Rasio Pakan Harus Diberi : ");
-    Serial.print((RasioPakan*HariKe*JumlahLele)); 
-    Serial.println(" Gram");
-    Serial.println();
-    
-  //Tampilkan Waktu sekarang
-    Serial.print(now.year(), DEC);
-    Serial.print('/');
-    Serial.print(now.month(), DEC);
-    Serial.print('/');
-    Serial.print(now.day(), DEC);
-    Serial.print(" (");
-    Serial.print(daysOfTheWeek[now.dayOfTheWeek()]);
-    Serial.print(") ");
-    Serial.print("| ");
-    Serial.print(now.hour(), DEC);
-    Serial.print(':');
-    Serial.print(now.minute(), DEC);
-    Serial.print(':');
-    Serial.print(now.second(), DEC);
-    Serial.println();
-    
     //Pengaturan waktu 09:00 pemberian pakan 
-    if((now.hour() == 12 && now.minute() == 10))
+    if((now.hour() == 21 && now.minute() == 57))
     {
       if(HariKe >= 1 && HariKe <= 28){
         myservo1.attach(servoPin1);
@@ -214,10 +184,6 @@ void loop () {
         }
           myservo1.detach();
           myservo2.detach();
-          Serial.print("Pakan diberi sebanyak : ");
-          Serial.print(RasioPakan*HariKe*JumlahLele);
-          Serial.println("Gr");
-          Serial.println(" ");
       } else if(HariKe >= 29 && HariKe <= 50){
         myservo3.attach(servoPin3);
         myservo3.write(90); //buka katup pakan
@@ -240,19 +206,17 @@ void loop () {
         }
           myservo3.detach();
           myservo4.detach();
-          Serial.print("Pakan diberi sebanyak : ");
-          Serial.print(RasioPakan*HariKe*JumlahLele);
-          Serial.println("Gr");
-          Serial.println(" ");
       }
-
+      if((now.hour() == 13 && now.minute() == 5 && now.second() == 50)){
+        client.add(IDPakan, RasioHarian);
+      }
     } 
  
     //Pengaturan waktu 12:00 pemberian pakan 
-    if((now.hour() == 14 && now.minute() == 59 ))
+    if((now.hour() == 21 && now.minute() == 58 ))
     {
       if(HariKe >= 1 && HariKe <= 28){
-       myservo1.attach(servoPin1);
+        myservo1.attach(servoPin1);
         myservo1.write(90); //buka katup pakan
         delay(400); //delay sebanyak (HariKe*1s)
         Serial.println("++[ WAKTU PAKAN 2 ]++");
@@ -271,11 +235,11 @@ void loop () {
           myservo2.write(servoAngle);          
           delay(15);
         }
-          Serial.print("Pakan diberi sebanyak : ");
-          Serial.print(RasioPakan*HariKe*JumlahLele);
-          Serial.println("Gr");
-          Serial.println(" ");
+        myservo1.detach();
+        myservo2.detach();
+        
       } else if(HariKe >= 29 && HariKe <= 50){
+        myservo3.attach(servoPin3);
         myservo3.write(90); //buka katup pakan
         delay(300); //delay sebanyak (HariKe*1s)
         Serial.println("++[ WAKTU PAKAN 2 ]++");
@@ -285,6 +249,7 @@ void loop () {
           myservo3.write(servoAngle);          
           delay(15);
         }
+        myservo4.attach(servoPin4);
         myservo4.write(90); //buka katup pakan
         delay(300); //delay sebanyak (HariKe*1s)
         
@@ -293,16 +258,16 @@ void loop () {
           myservo4.write(servoAngle);          
           delay(15);
         }
-          
-          Serial.print("Pakan diberi sebanyak : ");
-          Serial.print(RasioPakan*HariKe*JumlahLele);
-          Serial.println("Gr");
-          Serial.println(" ");
+          myservo3.detach();
+          myservo4.detach();
+      }
+      if((now.hour() == 13 && now.minute() == 5 && now.second() == 50)){
+        client.add(IDPakan, RasioHarian);
       }
     }
 
      //Pengaturan waktu 17:00 pemberian pakan 
-     if((now.hour() == 12 && now.minute() == 58))
+     if((now.hour() == 22 && now.minute() == 0))
      {
       if(HariKe >= 1 && HariKe <= 28){
         myservo1.attach(servoPin1);
@@ -326,10 +291,6 @@ void loop () {
         }
           myservo1.detach();
           myservo2.detach();
-          Serial.print("Pakan diberi sebanyak : ");
-          Serial.print(RasioPakan*HariKe*JumlahLele);
-          Serial.println("Gr");
-          Serial.println(" ");
       } else if(HariKe >= 29 && HariKe <= 50){
         myservo3.attach(servoPin3);
         myservo3.write(90); //buka katup pakan
@@ -352,22 +313,14 @@ void loop () {
         }
           myservo3.detach();
           myservo4.detach();
-          Serial.print("Pakan diberi sebanyak : ");
-          Serial.print(RasioPakan*HariKe*JumlahLele);
-          Serial.println("Gr");
-          Serial.println(" ");
       }
-      client.add(IDPakan, RasioHarian);
+      if((now.hour() == 13 && now.minute() == 5 && now.second() == 50)){
+        client.add(IDPakan, RasioHarian);
+      }
      }
+     
     client.add(IDSuhu, suhu);
     client.add(IDpH, phValue);
     client.sendAll();
-    delay(30000);
+    delay(5000);
 }    
-
-
-float ambilSuhu(){
-   sensorSuhu.requestTemperatures();
-   float suhu = sensorSuhu.getTempCByIndex(0)+1;
-   return suhu;   
-}
